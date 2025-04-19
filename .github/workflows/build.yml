@@ -67,6 +67,10 @@ jobs:
         with:
           name: Build-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
+
+      - name: Create Date Directory
+        run: mkdir -p ${{ steps.get_start_date.outputs.start_date }}
+        
       - name: Archive files
         run: |
           sudo apt-get update
@@ -79,20 +83,8 @@ jobs:
           credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
           filename: "archive.zip"
           folderId: ${{ secrets.FOLDER_ID }}
-          name: "documentation.zip" # optional string
+          name: "${{ matrix.targetPlatform }}.zip" # optional string
           overwrite: "true" # optional boolean
-      - name: Make Directory Structure
-        run: |
-          mkdir -p w/x/y
-          date +%s > w/x/y/z
-      - name: Mirror Directory Structure
-        uses: adityak74/google-drive-upload-git-action@main
-        with:
-          credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
-          filename: w/x/y/z
-          folderId: ${{ secrets.FOLDER_ID }}
-          overwrite: "true"
-          mirrorDirectoryStructure: "true"
           
       - name: Send Discord Notification
         run: |
