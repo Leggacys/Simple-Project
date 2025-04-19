@@ -68,8 +68,11 @@ jobs:
           name: Build-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
 
+      - name: Set current date as env variable
+        run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+        
       - name: Create Date Directory
-        run: mkdir ${{ steps.get_start_date.outputs.start_date }}
+        run: mkdir $NOW
         
       - name: Archive files
         run: |
