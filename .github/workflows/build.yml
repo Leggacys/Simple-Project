@@ -1,8 +1,33 @@
 name: Build project
-
 on: [push, pull_request]
 
 jobs:
+  sendStartNotification:
+    name: Send Start Notification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord Notification
+        run: |
+          RESPONSE=$(curl -H "Content-Type: application/json" -X POST -d '{
+          "username": "GitHub",
+          "content": "Am pula mare",
+          "embeds": [
+            {
+              "type": "rich",
+              "title": "Build Start",
+              "description": "New changes on ${{ github.event.repository.name }} by ${{ github.actor }}",
+              "color": 2123412,
+              "author": {
+                "name": "${{ github.actor }}",
+                "url": "https://github.com/${{ github.actor }}",
+                "icon_url": "https://avatars.githubusercontent.com/u/${{ github.actor_id }}?v=4"
+              },
+              "url": "https://github.com/***"
+            }
+          ]
+          }' ${{ secrets.DISCORD_WEBHOOK }})
+          echo "Webhook server response: $RESPONSE"
+ 
   buildForAllSupportedPlatforms:
     name: Build for ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
@@ -12,26 +37,51 @@ jobs:
         targetPlatform:
           - iOS # Build an iOS player.
           - Android # Build an Android .apk standalone app.
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           lfs: true
+
       - uses: actions/cache@v3
         with:
           path: Library
           key: Library-${{ matrix.targetPlatform }}
           restore-keys: Library-
+
       - if: matrix.targetPlatform == 'Android'
         uses: jlumbroso/free-disk-space@v1.3.1
-      - uses: game-ci/unity-builder@v4
+
+      - name: Build with Unity
+        id: build-step
+        uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
+
       - uses: actions/upload-artifact@v4
-        with:
-          name: Build-${{ matrix.targetPlatform }}
-          path: build/${{ matrix.targetPlatform }}
+      - name: Send Discord Notification
+        run: |
+          RESPONSE=$(curl -H "Content-Type: application/json" -X POST -d '{
+          "username": "GitHub",
+          "content": "Build Results",
+          "embeds": [
+            {
+              "type": "rich",
+              "title": "Build Finished ${{ matrix.targetPlatform }} ",
+              "description": "Build for ${{ matrix.targetPlatform }} on ${{ github.event.repository.name }} by${{ github.actor }} has ${{ job.status }}",
+              "color": 2123412,
+              "author": {
+                "name": "${{ github.actor }}",
+                "url": "https://github.com/${{ github.actor }}",
+                "icon_url": "https://avatars.githubusercontent.com/u/${{ github.actor_id }}?v=4"
+              },
+              "url": "https://github.com/***"
+            }
+          ]
+          }' ${{ secrets.DISCORD_WEBHOOK }})
+          echo "Webhook server response: $RESPONSE"
