@@ -27,7 +27,7 @@ jobs:
           ]
           }' ${{ secrets.DISCORD_WEBHOOK }})
           echo "Webhook server response: $RESPONSE"
- 
+
   buildForAllSupportedPlatforms:
     name: Build for ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
@@ -110,3 +110,45 @@ jobs:
           ]
           }' ${{ secrets.DISCORD_WEBHOOK }})
           echo "Webhook server response: $RESPONSE"
+          
+  uploadAllArtifacts:
+    name: Upload All Artifacts
+    runs-on: ubuntu-latest
+    needs: [buildForAllSupportedPlatforms] # Wait for both iOS and Android builds
+    steps:
+      - uses: actions/checkout@v4 # Need to check out the repo to potentially access files
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Download iOS Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Build-iOS
+          path: ios-build
+
+      - name: Download Android Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Build-Android
+          path: android-build
+
+      - name: Upload iOS Artifact to Google Drive
+        uses: adityak74/google-drive-upload-git-action@main # Or your preferred upload action
+        with:
+          credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
+          filename: "iOS.zip" # Adjust path to your iOS artifact
+          folderId: ${{ secrets.FOLDER_ID }}
+          name: "iOS.zip"
+          overwrite: "false"
+
+      - name: Upload Android Artifact to Google Drive
+        uses: adityak74/google-drive-upload-git-action@main # Or your preferred upload action
+        with:
+          credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
+          filename: "android.apk" # Adjust path to your Android artifact
+          folderId: ${{ secrets.FOLDER_ID }}
+          name: "android.apk"
+          overwrite: "false"
+  
+  
