@@ -116,7 +116,7 @@ jobs:
         uses: adityak74/google-drive-upload-git-action@main # Or your preferred upload action
         with:
           credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
-          filename: "iOS.zip" # Adjust path to your iOS artifact
+          filename: "Build-iOS.zip" # Adjust path to your iOS artifact
           folderId: ${{ secrets.FOLDER_ID }}
           name: "iOS.zip"
           overwrite: "false"
@@ -125,9 +125,9 @@ jobs:
         uses: adityak74/google-drive-upload-git-action@main # Or your preferred upload action
         with:
           credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
-          filename: "android.apk" # Adjust path to your Android artifact
+          filename: "Build-Android.zip" # Adjust path to your Android artifact
           folderId: ${{ secrets.FOLDER_ID }}
-          name: "android.apk"
+          name: "android.zip"
           overwrite: "false"
   
   
