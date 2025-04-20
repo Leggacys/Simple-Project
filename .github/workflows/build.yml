@@ -117,12 +117,18 @@ jobs:
 
       - name: List Android Artifact Contents
         run: ls -R android-build
+
+      - name: Zip iOS Build Directory
+        run: zip -r ios-build.zip ios-build/
+
+      - name: List iOS Artifact Contents
+        run: ls -R ios-build
         
       - name: Upload iOS Artifact to Google Drive
         uses: adityak74/google-drive-upload-git-action@main # Or your preferred upload action
         with:
           credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
-          filename: "ios-build/Build-iOS.zip" # Assuming the zip file inside ios-build is named "Build-iOS.zip"
+          filename: "ios-build.zip" # Assuming the zip file inside ios-build is named "Build-iOS.zip"
           folderId: ${{ secrets.FOLDER_ID }}
           name: "iOS.zip"
           overwrite: "false"
@@ -131,9 +137,9 @@ jobs:
         uses: adityak74/google-drive-upload-git-action@main # Or your preferred upload action
         with:
           credentials: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
-          filename: "android-build/Build-Android.zip" # Assuming the zip file inside android-build is named "Build-Android.zip"
+          filename: "android-build/Android.apk" # Assuming the zip file inside android-build is named "Build-Android.zip"
           folderId: ${{ secrets.FOLDER_ID }}
-          name: "android.zip"
+          name: "android"
           overwrite: "false"
   
   
