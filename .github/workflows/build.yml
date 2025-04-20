@@ -112,6 +112,12 @@ jobs:
           name: Build-Android
           path: android-build
 
+      - name: List iOS Artifact Contents
+        run: ls -R ios-build
+
+      - name: List Android Artifact Contents
+        run: ls -R android-build
+        
       - name: Upload iOS Artifact to Google Drive
         uses: adityak74/google-drive-upload-git-action@main # Or your preferred upload action
         with:
